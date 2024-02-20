@@ -25,6 +25,9 @@ import org.springframework.util.StringUtils;
 
 import io.redis.jedis.jedisdemo.model.Programmer;
 
+import java.time.Duration;
+import java.time.Instant;
+
 @Configuration
 public class SpringConf {
 
@@ -46,11 +49,18 @@ public class SpringConf {
 	public JedisClientConfiguration getJedisClientConfiguration() {
 		JedisClientConfiguration.JedisPoolingClientConfigurationBuilder JedisPoolingClientConfigurationBuilder = (JedisClientConfiguration.JedisPoolingClientConfigurationBuilder) JedisClientConfiguration
 				.builder();
-		GenericObjectPoolConfig GenericObjectPoolConfig = new GenericObjectPoolConfig();
-		GenericObjectPoolConfig.setMaxTotal(maxTotal);
-		GenericObjectPoolConfig.setMaxIdle(maxIdle);
-		GenericObjectPoolConfig.setMinIdle(minIdle);
-		return JedisPoolingClientConfigurationBuilder.poolConfig(GenericObjectPoolConfig).build();
+		GenericObjectPoolConfig genericObjectPoolConfig = new GenericObjectPoolConfig();
+		genericObjectPoolConfig.setMaxTotal(maxTotal);
+		genericObjectPoolConfig.setMaxIdle(maxIdle);
+		JedisClientConfiguration jedisClientConfig = (JedisPoolingClientConfigurationBuilder)
+				.poolConfig(genericObjectPoolConfig)
+				.and().useSsl().
+				and().usePooling()
+				.and().
+				readTimeout(Duration.ofSeconds(10))
+				.connectTimeout(Duration.ofSeconds(5))
+				.build();
+		return jedisClientConfig;
 	}
 
 	@Bean
@@ -64,14 +74,26 @@ public class SpringConf {
 		return new JedisConnectionFactory(redisStandaloneConfiguration, getJedisClientConfiguration());
 	}
 
-	@Bean
-	public RedisTemplate redisTemplate() {
+	@Bean("redisTemplate")
+	public RedisTemplate<String, Object> redisTemplate() {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
 		redisTemplate.setConnectionFactory(getJedisConnectionFactory());
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(jackson2JsonRedisSerializer());
 		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 		redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer());
+		redisTemplate.setEnableTransactionSupport(true);
+		redisTemplate.afterPropertiesSet();
+
+
+
+		AuthToken authTokenEntity = new AuthToken();
+		authTokenEntity.setCreatedTime(Instant.now());
+		authTokenEntity.setToken("dummyToken");
+
+		redisTemplate.opsForValue().set("dummy_key", authTokenEntity);
+		AuthToken dummykeyValue = (AuthToken)redisTemplate.opsForValue().get("dummy_key");
+
 		return redisTemplate;
 	}
 
