@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.redis.jedis.jedisdemo.dao.AuthToken;
 import io.redis.jedis.jedisdemo.model.Programmer;
 
 public interface ProgrammerService {
@@ -40,6 +41,8 @@ public interface ProgrammerService {
 		Programmer findPInHash(int id);
 
 		void deletePhash(int id);
+
+	AuthToken putTokenKey();
 		
 
 }
