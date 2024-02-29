@@ -38,14 +38,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             username = jwtService.extractUsername(token);
         }
 
-        if(null!=username){
-            for (int i = 501; i <= 1000; i++) {
+        if (null != username) {
+            for (int i = 1; i <= 1000; i++) {
                 String user = username + i;
                 AuthToken redisAuthToken = (AuthToken) redisTemplate.opsForValue().get(user);
+                if (null != redisAuthToken) {
+                    System.out.println("is user found : " + redisAuthToken.getToken());
+                } else {
+                    System.out.println(" user not found : ");
+                }
+
             }
         }
-
-
 
 
         filterChain.doFilter(request, response);

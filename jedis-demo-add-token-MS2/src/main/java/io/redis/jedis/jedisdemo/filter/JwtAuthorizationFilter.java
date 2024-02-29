@@ -31,6 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        redisTemplate.opsForValue().get("test2");
         String token = null;
         String username = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -39,13 +40,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         if (null != username) {
-            for (int i = 1; i <= 500; i++) {
+            for (int i = 1; i <= 1000; i++) {
                 String user = username + i;
                 AuthToken redisAuthToken = (AuthToken) redisTemplate.opsForValue().get(user);
+                if (null != redisAuthToken) {
+                    System.out.println("is user found : " + redisAuthToken.getToken());
+                } else {
+                    System.out.println(" user not found : ");
+                }
+
             }
         }
-
-
 
 
         filterChain.doFilter(request, response);

@@ -22,7 +22,7 @@ public class RedisService {
     private RedisTemplate<String, Object> redisTemplate;
 
 
-    public void putTokenKey(String username){
+    public void putTokenKey(String username) {
 
         AuthToken token = new AuthToken();
         token.setToken(generateToken(username));
@@ -30,19 +30,20 @@ public class RedisService {
         redisTemplate.opsForValue().set(username, token);
         System.out.println("Added username : " + username);
 
-//        for (int i = 0; i <= 500; i++) {
-//            String user = username + i;
-//            token.setToken(generateToken(user));
-//            token.setCreatedTime(Instant.now());
-//            redisTemplate.opsForValue().set(user, token);
-//            System.out.println("Added username : " + user);
-//        }
+        for (int i = 1; i <= 1000; i++) {
+            String user = username + i;
+            token.setToken(generateToken(user));
+            token.setCreatedTime(Instant.now());
+            redisTemplate.opsForValue().set(user, token);
+            System.out.println("Added username : " + user);
+        }
     }
 
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);
     }
+
     private String createToken(Map<String, Object> claims, String userName) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -53,17 +54,16 @@ public class RedisService {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes= Decoders.BASE64.decode("5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437");
+        byte[] keyBytes = Decoders.BASE64.decode("5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437");
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public void delete(String username){
-        for(int i = 0;i<=500;i++) {
+    public void delete(String username) {
+        for (int i = 1; i <= 1000; i++) {
             String user = username + i;
             redisTemplate.delete(username);
             System.out.println("username to expire : " + user);
         }
-
 
     }
 }

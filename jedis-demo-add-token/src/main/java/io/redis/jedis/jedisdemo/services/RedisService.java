@@ -25,7 +25,7 @@ public class RedisService {
     public void  putTokenKey(String username){
 // 9967485207 - dilip
         AuthToken token = new AuthToken();
-        for (int i = 500; i <= 1000; i++) {
+        for (int i = 0; i <= 1000; i++) {
             String user = username + i;
             token.setToken(generateToken(user));
             token.setCreatedTime(Instant.now());
@@ -53,9 +53,9 @@ public class RedisService {
     }
 
     public void delete(String username) {
-        for (int i = 500; i <= 1000; i++) {
+        for (int i = 0; i <= 1000; i++) {
             String user = username + i;
-            redisTemplate.delete(username);
+            redisTemplate.delete(user);
             System.out.println("username to expire : " + user);
         }
     }
